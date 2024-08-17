@@ -26,7 +26,7 @@ export default function Home() {
     setResponse(data);
 
     const formData = new FormData();
-    formData.append("voice", file[0] as Blob);
+    formData.append("voice", file as Blob);
     fetch("/api/speechToText", {
       method: "POST",
       body: formData,
