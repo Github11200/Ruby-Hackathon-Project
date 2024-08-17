@@ -1,40 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+
+const model = new ChatGoogleGenerativeAI({
+  model: "gemini-pro",
+  maxOutputTokens: 2048,
+});
+
+const prompt = `You are an intelligent AI that can detect complaints in text, decide whether it is a complaint, summarize them, and assign them categories.
+
+Detect the complaint in the given text and summarize it. Also assign it a category and subcategory.
+
+When using categories and subcategories try not to create new ones if you don't need to and just use previously created ones.
+
+Return the following JSON output:
+
+{
+  isComplaint: boolean,
+  summary: string,
+  category: string,
+  subcategory: string
+}
+`;
 
 // Handling POST requests
 export async function POST(req: NextRequest) {
-  try {
-    const { query } = await req.json(); // Parse JSON from request body
+  const { query } = await req.json();
 
-    if (!query) {
-      return NextResponse.json(
-        { message: "Query is required" },
-        { status: 400 }
-      );
-    }
+  const res = await model.invoke([
+    ["system", prompt],
+    ["human", query],
+  ]);
 
-    const response = await axios.post(
-      "https://api.gemini.com/v1/complaint-detection",
-      { query },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.GEMINI_API_KEY}`,
-        },
-      }
-    );
-
-    const { is_complaint, summary } = response.data;
-
-    console.log("Gmini API response", response.data);
-
-    return NextResponse.json({ is_complaint, summary });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        message: "Error interacting with Gemini API",
-        error: error.message,
-      },
-      { status: 500 }
-    );
-  }
+  return new Response(res.content);
 }

@@ -13,6 +13,7 @@
     "@langchain/google-genai": "^0.0.26",
     "@langchain/mistralai": "^0.0.28",
     "@pinecone-database/pinecone": "^3.0.0",
+    "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.45.1",
@@ -24,6 +25,7 @@
     "next-themes": "^0.3.0",
     "react": "^18",
     "react-dom": "^18",
+    "sonner": "^1.5.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7"
   },
