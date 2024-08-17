@@ -1,0 +1,8 @@
+{
+	"dependencies": {
+		"@langchain/community": "^0.2.28",
+		"@langchain/core": "^0.2.27",
+		"@supabase/supabase-js": "^2.45.1",
+		"langchain": "^0.2.16"
+	}
+}
