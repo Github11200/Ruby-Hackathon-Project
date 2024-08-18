@@ -28,6 +28,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ComplaintResponse {
   created_at: string;
@@ -39,7 +46,7 @@ interface ComplaintResponse {
   isComplaint: boolean;
 }
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 50;
 
 export default function Dashboard() {
   const [complaints, setComplaints] = useState<ComplaintResponse[]>([]);
@@ -47,6 +54,7 @@ export default function Dashboard() {
   const [openDialog, setOpenDialog] = useState(false);
   const [queryResults, setQueryResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sort, setSort] = useState("");
 
   useEffect(() => {
     fetch("/api/getComplaintsFromDatabase", {
@@ -54,7 +62,7 @@ export default function Dashboard() {
     })
       .then((res) => res.json())
       .then((data: { complaints: ComplaintResponse[] }) => {
-        setComplaints(data.complaints.slice(0, 200)); // Adjust the slice as needed
+        setComplaints(data.complaints);
       });
   }, []);
 
@@ -91,6 +99,31 @@ export default function Dashboard() {
     }
   };
 
+  const sortChange = (newSortingFunction: string) => {
+    setSort(newSortingFunction);
+    let sortedComplaints = [...complaints];
+    switch (newSortingFunction) {
+      case "descendingDate":
+        sortedComplaints.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        break;
+      case "ascendingDate":
+        sortedComplaints.sort(
+          (a, b) =>
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+        break;
+      case "company":
+        sortedComplaints.sort((a, b) => a.company.localeCompare(b.company));
+        break;
+      default:
+        break;
+    }
+    setComplaints(sortedComplaints);
+  };
+
   return (
     <div className="p-8">
       <div className="flex gap-2 mb-8">
@@ -106,6 +139,16 @@ export default function Dashboard() {
           onChange={(e) => setSearch(e.target.value)}
         />
         <Button onClick={handleSearch}>Search</Button>
+        <Select value={sort} onValueChange={(e) => sortChange(e)}>
+          <SelectTrigger className="w-64">
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="descendingDate">Date (descending)</SelectItem>
+            <SelectItem value="ascendingDate">Date (ascending)</SelectItem>
+            <SelectItem value="company">Company</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <Table className="w-11/12 mx-auto">
