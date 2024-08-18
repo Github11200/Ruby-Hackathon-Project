@@ -52,14 +52,14 @@ export default function Dashboard() {
     })
       .then((res) => res.json())
       .then((data: { complaints: ComplaintResponse[] }) => {
-        setComplaints(data.complaints);
+        setComplaints(data.complaints.slice(0, 200));
       });
   }, []);
 
   const handleSearch = () => {
     fetch("/api/queryVectorDatabase", {
       method: "POST",
-      body: JSON.stringify({ query: search, topK: 2 }),
+      body: JSON.stringify({ query: search, topK: 3 }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -149,7 +149,22 @@ export default function Dashboard() {
               <div className="flex flex-col gap-4">
                 {queryResults.map((result, index) => (
                   <div key={index}>
-                    <p>{result.pageContent}</p>
+                    <p>
+                      <span className="font-bold">Company:</span>{" "}
+                      {result.metadata.company}
+                    </p>
+                    <p>
+                      <span className="font-bold">Product Category:</span>{" "}
+                      {result.metadata.productCategory}
+                    </p>
+                    <p>
+                      <span className="font-bold">Subproduct Category:</span>{" "}
+                      {result.metadata.subProductCategory}
+                    </p>
+                    <p>
+                      <span className="font-bold">Complaint: </span>
+                      {result.pageContent}
+                    </p>
                   </div>
                 ))}
               </div>
