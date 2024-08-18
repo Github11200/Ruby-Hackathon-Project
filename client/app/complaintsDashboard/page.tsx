@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,16 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 interface ComplaintResponse {
   created_at: string;
@@ -64,6 +74,9 @@ export default function Dashboard() {
   const [queryResults, setQueryResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState("");
+  const fitlerComplaints = useRef<boolean>(true);
+  const originalData = useRef<ComplaintResponse[]>([]);
+  const date = useRef<Date>(new Date());
 
   useEffect(() => {
     fetch("/api/getComplaintsFromDatabase", {
@@ -71,6 +84,7 @@ export default function Dashboard() {
     })
       .then((res) => res.json())
       .then((data: { complaints: ComplaintResponse[] }) => {
+        originalData.current = data.complaints;
         setComplaints(data.complaints);
       });
   }, []);
@@ -131,6 +145,29 @@ export default function Dashboard() {
     setComplaints(sortedComplaints);
   };
 
+  const filterComplaintsList = (showAllComplaints: boolean) => {
+    if (showAllComplaints) {
+      setComplaints(originalData.current);
+    } else {
+      setComplaints(
+        originalData.current.filter((complaint) => !complaint.isComplaint)
+      );
+    }
+  };
+
+  const handleDateChange = (date: Date) => {
+    if (date) {
+      setComplaints(
+        complaints.filter(
+          (complaint) =>
+            new Date(complaint.created_at).getTime() >= date.getTime()
+        )
+      );
+    } else {
+      setComplaints(complaints);
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="flex gap-2 mb-8">
@@ -156,6 +193,48 @@ export default function Dashboard() {
             <SelectItem value="company">Company</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+      <div className="flex justify-center gap-16">
+        <div className="flex flex-row gap-3 items-center">
+          <Checkbox
+            checked={fitlerComplaints.current}
+            onClick={() => {
+              fitlerComplaints.current = !fitlerComplaints.current;
+              filterComplaintsList(fitlerComplaints.current);
+            }}
+          />
+          <p>Classified as complaint</p>
+        </div>
+        <div className="flex flex-row items-center gap-4">
+          <p>Dates after: </p>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-[280px] justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? format(date.current, "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={date.current}
+                onSelect={(newDate) => {
+                  if (newDate) {
+                    date.current = newDate;
+                    handleDateChange(newDate as Date);
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       <Table className="w-11/12 mx-auto">

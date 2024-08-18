@@ -20,7 +20,7 @@ Try using the following categories by default: ${productCategories}
 And the following sub categories: ${productSubcategories}
 
 ONLY CREATE NEW CATEGORIES IF NECESSARY OR IS APPROPRIATE TO DO SO.
-
+A
 When using categories and subcategories try not to create new ones if you don't need to and just use previously created ones.
 
 DO NOT INCLUDE BACKTICKS OR SAY JOSN ANYWHERE, JUST RETURN THE PLAIN JSON.
