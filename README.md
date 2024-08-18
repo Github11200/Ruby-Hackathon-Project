@@ -10,16 +10,16 @@ This project is part of the Ruby Track Hackathon in the [Headstarter Fellowship]
 ### 💡 Project Description
 We are developing an AI-powered complaint categorization system that processes text-based consumer complaints. The system will:
 
-1. **Process Consumer Complaints**: Analyze text-based complaints submitted by consumers.
+1. **Process Consumer Complaints**: Analyze text, audio, and image based complaints submitted by consumers.
 2. **Categorize Complaints**: Assign appropriate product and sub-product categories to each complaint.
-3. **Store Categorized Data**: Save the categorized complaints in a database for further analysis and retrieval.
-4. **Enhance with RAG Pipeline**: Implement a Retrieval-Augmented Generation (RAG) pipeline using a vector database to retrieve and compare related complaints based on similarity.
+3. **Store Categorized Data**: Saved the categorized complaints in a database and vector database for RAG pipeline.
+4. **Enhance with a RAG Pipeline**: Implemented a Retrieval-Augmented Generation (RAG) pipeline using a vector database to retrieve and compare related complaints based on similarity.
 
 ### 🔑 Key Features
 - **Text Processing**: Utilize natural language processing (NLP) techniques to understand and process consumer complaints.
 - **Categorization**: Employ machine learning models to accurately categorize complaints into predefined product and sub-product categories.
 - **Database Integration**: Store the categorized data in a robust database system for easy access and management.
-- **RAG Pipeline**: Enhance the system with a RAG pipeline to improve the retrieval of similar complaints, aiding in better analysis and resolution.
+- **RAG Pipeline**: Use a RAG pipeline to improve the retrieval of similar complaints, aiding in better analysis and resolution.
 
 ### 🛠️ Technologies Used
 - **Frontend**:
@@ -29,13 +29,12 @@ We are developing an AI-powered complaint categorization system that processes t
 
 - **Backend**: 
    - [NextJS](https://nextjs.org/) for rapid routing API development.
-   - [Supabase](https://supabase.com/) PostgreSQL built-in database for relational data.
-   - [Pinecone](https://www.pinecone.io/) vector database integration for RAG.
+   - [Supabase](https://supabase.com/) PostgreSQL built-in database for relational data, and for the vector database
    - [LangChain RAG Pipeline](https://python.langchain.com/v0.2/docs/tutorials/rag/) for integration with Pinecone to enable retrieval of similar complaints.
    - [Google Gemini API](https://ai.google.dev/) for complaint categorization and summary generation.
 
 ### 👥 Team Members
-- **Patel Jinay** - [GitHub](https://github.com/Github11200)
+- **Jinay Patel** - [GitHub](https://github.com/Github11200)
 - **Abdelghani Bensaïh** - [GitHub](https://github.com/yourusername)
 - **Nebila Wako** - [GitHub](https://github.com/nebilawako)
 - **Dev Tiwari** - [LinkedIn](https://www.linkedin.com/in/dev-t-99a047209/)
