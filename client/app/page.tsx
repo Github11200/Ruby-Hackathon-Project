@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Complaint } from "./api/addComplaintToDatabase/route";
 import { X } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ComplaintResponse {
   isComplaint: boolean;
@@ -42,6 +43,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [company, setCompany] = useState("");
   const [response, setResponse] = useState<ComplaintResponse>();
+  const [responseLoading, setResponseLoading] = useState(false);
 
   const getComplaintSummaryAndCategories = async (complaint: string) => {
     const res = await fetch("/api/gemini", {
@@ -72,9 +74,11 @@ export default function Home() {
     e.preventDefault();
 
     try {
+      setResponseLoading(true);
       if (query !== "") {
         const data = await getComplaintSummaryAndCategories(query);
         setResponse(data);
+        setResponseLoading(false);
         addComplaintToDatabase({
           company: company,
           productCategory: data.category,
@@ -94,6 +98,7 @@ export default function Home() {
         const text = await res.json();
         const data = await getComplaintSummaryAndCategories(text);
         setResponse(data);
+        setResponseLoading(false);
         addComplaintToDatabase({
           company: company,
           productCategory: data.category,
@@ -115,8 +120,7 @@ export default function Home() {
                 text.data.ParsedResults[0].ParsedText
               );
               setResponse(data);
-              console.log(data);
-
+              setResponseLoading(false);
               addComplaintToDatabase({
                 company: company,
                 productCategory: data.category,
@@ -131,6 +135,7 @@ export default function Home() {
     } catch (error) {
       console.error(error);
       toast.error("An error occurred while submitting the complaint. " + error);
+      setResponseLoading(false);
     }
   };
 
@@ -205,7 +210,7 @@ export default function Home() {
               Send <Send className="size-4 ml-2" />
             </Button>
           </form>
-
+          {responseLoading && <Skeleton className="w-full h-56 mt-4" />}
           {response && (
             <Card className="p-6 sm:p-4 shadow-lg rounded-lg mt-4 ">
               <Button
