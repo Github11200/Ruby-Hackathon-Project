@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 
 interface ComplaintResponse {
@@ -20,6 +22,7 @@ interface ComplaintResponse {
 
 export default function Dashboard() {
   const [complaints, setComplaints] = useState<ComplaintResponse[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetch("/api/getComplaintsFromDatabase", {
@@ -33,6 +36,15 @@ export default function Dashboard() {
 
   return (
     <div>
+      <div className="flex gap-2">
+        <Input
+          type="text"
+          placeholder="Search for similar complaints..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Button>Search</Button>
+      </div>
       {complaints.length > 0 &&
         complaints.map((complaint) => (
           <Card key={complaint.id}>
