@@ -37,7 +37,6 @@ We are developing an AI-powered complaint categorization system that processes t
 - **Jinay Patel** - [GitHub](https://github.com/Github11200)
 - **Abdelghani Bensaïh** - [GitHub](https://github.com/yourusername)
 - **Nebila Wako** - [GitHub](https://github.com/nebilawako)
-- **Dev Tiwari** - [LinkedIn](https://www.linkedin.com/in/dev-t-99a047209/)
 
 ### 📞 Contact
 For any inquiries or further information, please feel free to contact us.
