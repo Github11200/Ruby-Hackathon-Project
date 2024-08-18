@@ -18,7 +18,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   const store = new SupabaseVectorStore(embeddings, {
     client,
-    tableName: "documents",
+    tableName: "complaints_vector_db",
   });
 
   const results = await store.similaritySearch(query, topK);

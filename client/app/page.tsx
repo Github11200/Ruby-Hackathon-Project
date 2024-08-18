@@ -15,6 +15,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Link from "next/link";
+// @ts-ignore
 import { toast } from "sonner";
 import { Complaint } from "./api/addComplaintToDatabase/route";
 import { X } from "lucide-react";
@@ -32,6 +33,7 @@ interface SubmitComplaintProps {
   productCategory: string;
   productSubcategory: string;
   complaint: string;
+  isComplaint: boolean;
 }
 
 export default function Home() {
@@ -78,6 +80,7 @@ export default function Home() {
           productCategory: data.category,
           productSubcategory: data.subcategory,
           complaint: data.summary,
+          isComplaint: data.isComplaint,
         });
       } else if (audioFile) {
         const formData = new FormData();
@@ -96,6 +99,7 @@ export default function Home() {
           productCategory: data.category,
           productSubcategory: data.subcategory,
           complaint: data.summary,
+          isComplaint: data.isComplaint,
         });
       } else {
         const reader = new FileReader();
@@ -107,11 +111,19 @@ export default function Home() {
           })
             .then((res) => res.json())
             .then(async (text) => {
-              setResponse(
-                await getComplaintSummaryAndCategories(
-                  text.data.ParsedResults[0].ParsedText
-                )
+              const data = await getComplaintSummaryAndCategories(
+                text.data.ParsedResults[0].ParsedText
               );
+              setResponse(data);
+              console.log(data);
+
+              addComplaintToDatabase({
+                company: company,
+                productCategory: data.category,
+                productSubcategory: data.subcategory,
+                complaint: data.summary,
+                isComplaint: data.isComplaint,
+              });
             });
         };
         reader.readAsDataURL(imageFile as Blob);
@@ -124,19 +136,16 @@ export default function Home() {
 
   return (
     <>
-   <div className="relative">
-      {/* Mode Toggle in the top-left corner */}
-      <div className="absolute top-4 left-4 md:top-6 md:left-6">
-        <ModeToggle />
+      <div className="relative">
+        <div className="absolute top-4 left-4 md:top-6 md:left-6">
+          <ModeToggle />
+        </div>
+        <Link href="/complaintsDashboard">
+          <Button className="absolute top-4 right-4 md:top-6 md:right-6">
+            View all complaints
+          </Button>
+        </Link>
       </div>
-
-      {/* View Complaints button in the top-right corner */}
-      <Link href="/complaintsDashboard">
-        <Button className="absolute top-4 right-4 md:top-6 md:right-6">
-          View all complaints
-        </Button>
-      </Link>
-    </div>
       <div className="flex min-h-screen w-full max-w-[900px] flex-col items-center justify-center mx-auto px-6 sm:px-10 lg:px-12 lg:max-w-screen-xl">
         <div className="text-center mb-10 flex flex-col gap-1">
           <h2 className="scroll-m-20 border-b pb-2 text-2xl sm:text-3xl font-semibold tracking-tight first:mt-0">
@@ -214,30 +223,24 @@ export default function Home() {
                 <CardTitle className="text-lg sm:text-xl  font-bold mb-1 sm:mb-2">
                   Complaint Detection
                 </CardTitle>
-                <CardDescription className="text-gray-600 text-sm sm:text-base">
+                <CardDescription className="text-gray-600 dark:text-white text-sm sm:text-base">
                   {response.summary}
                 </CardDescription>
               </CardHeader>
 
               <div className="mt-3 sm:mt-4">
                 <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
-                  <span className="font-semibold">Is Complaint: </span>
-                  <span className="font-normal">
-                    {response.isComplaint ? "Yes" : "No"}
-                  </span>
-                </p>
-                <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
                   <span className="font-semibold">Summary:</span>
                   <span className="font-normal">{response.summary}</span>
                 </p>
                 <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
-                  <span className="font-semibold">Category: </span>
+                  <span className="font-semibold">Product Category: </span>
                   <span className="font-normal">
                     {!response.category ? "None" : response.category}
                   </span>
                 </p>
                 <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
-                  <span className="font-semibold">Sub-category: </span>
+                  <span className="font-semibold">Product sub-category: </span>
                   <span className="font-normal">
                     {!response.subcategory ? "None" : response.subcategory}
                   </span>
