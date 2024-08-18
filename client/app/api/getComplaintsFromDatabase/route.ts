@@ -3,13 +3,12 @@ import { createClient } from "@/utils/supabase/server";
 
 // Add an entry into the complaints table
 export async function POST(req: NextRequest, res: NextResponse) {
-  const complaint = await req.json();
   const supabase = createClient();
 
-  const { data, error } = await supabase
+  let { data: complaints, error } = await supabase
     .from("complaints")
-    .insert([{ ...complaint }]);
+    .select("*");
 
   if (error) return new Response(JSON.stringify({ error }));
-  return new Response(JSON.stringify({ data }));
+  return new Response(JSON.stringify({ complaints }));
 }

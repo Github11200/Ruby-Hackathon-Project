@@ -17,12 +17,20 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { Complaint } from "./api/addComplaintToDatabase/route";
+import { X } from "lucide-react";
 
 interface ComplaintResponse {
   isComplaint: boolean;
   summary: string;
   category: string;
   subcategory: string;
+}
+
+interface SubmitComplaintProps {
+  company: string;
+  productCategory: string;
+  productSubcategory: string;
+  complaint: string;
 }
 
 export default function Home() {
@@ -33,9 +41,9 @@ export default function Home() {
   const [response, setResponse] = useState<ComplaintResponse>();
 
   const getComplaintSummaryAndCategories = async (complaint: string) => {
-    const res = await fetch("/api/detectComplaint", {
+    const res = await fetch("/api/gemini", {
       method: "POST",
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query: complaint }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -44,15 +52,32 @@ export default function Home() {
     return await res.json();
   };
 
+  const addComplaintToDatabase = async (complaint: SubmitComplaintProps) => {
+    fetch("/api/addComplaintToDatabase", {
+      method: "POST",
+      body: JSON.stringify(complaint),
+    })
+      .then(() => {
+        toast.success("Complaint submitted successfully!");
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      if (query) {
+      if (query !== "") {
         const data = await getComplaintSummaryAndCategories(query);
-        console.log(data);
-
         setResponse(data);
+        addComplaintToDatabase({
+          company: company,
+          productCategory: data.category,
+          productSubcategory: data.subcategory,
+          complaint: data.summary,
+        });
       } else if (audioFile) {
         const formData = new FormData();
         formData.append("voice", audioFile);
@@ -63,7 +88,14 @@ export default function Home() {
         });
 
         const text = await res.json();
-        setResponse(await getComplaintSummaryAndCategories(text));
+        const data = await getComplaintSummaryAndCategories(text);
+        setResponse(data);
+        addComplaintToDatabase({
+          company: company,
+          productCategory: data.category,
+          productSubcategory: data.subcategory,
+          complaint: data.summary,
+        });
       } else {
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -74,8 +106,6 @@ export default function Home() {
           })
             .then((res) => res.json())
             .then(async (text) => {
-              console.log(text.data.ParsedResults[0].ParsedText);
-
               setResponse(
                 await getComplaintSummaryAndCategories(
                   text.data.ParsedResults[0].ParsedText
@@ -85,26 +115,6 @@ export default function Home() {
         };
         reader.readAsDataURL(imageFile as Blob);
       }
-
-      const complaint: Complaint = {
-        company: company,
-        complaint: response?.summary || query,
-        productCategory: response?.category || "",
-        productSubcategory: response?.subcategory || "",
-      };
-
-      fetch("/api/addComplaintToDatabase", {
-        method: "POST",
-        body: JSON.stringify(complaint),
-      })
-        .then(() => {
-          toast.success("Complaint submitted successfully!");
-          setQuery("");
-          setCompany("");
-        })
-        .catch((error) => {
-          throw new Error(error);
-        });
     } catch (error) {
       console.error(error);
       toast.error("An error occurred while submitting the complaint. " + error);
@@ -114,14 +124,16 @@ export default function Home() {
   return (
     <>
       <Link href="/complaintsDashboard">
-        <Button className="absolute right-4 top-4">View all complaints</Button>
+        <Button className="absolute right-4 top-4 md:right-6 md:top-6">
+          View all complaints
+        </Button>
       </Link>
-      <div className="flex min-h-screen w-[30vw] flex-col items-center justify-center mx-auto">
+      <div className="flex min-h-screen w-full max-w-[900px] flex-col items-center justify-center mx-auto px-6 sm:px-10 lg:px-12 lg:max-w-screen-xl">
         <div className="text-center mb-10 flex flex-col gap-1">
-          <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+          <h2 className="scroll-m-20 border-b pb-2 text-2xl sm:text-3xl font-semibold tracking-tight first:mt-0">
             Please enter your complaint
           </h2>
-          <p>
+          <p className="text">
             Please use one of the following methods to enter your complaint.
           </p>
         </div>
@@ -177,15 +189,51 @@ export default function Home() {
           </form>
 
           {response && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Complaint Detection</CardTitle>
-                <CardDescription>{response.summary}</CardDescription>
+            <Card className="p-6 sm:p-4 shadow-lg rounded-lg mt-4 ">
+              <Button
+                className="absolute"
+                variant="outline"
+                onClick={() => {
+                  setResponse(undefined);
+                  setQuery("");
+                  setCompany("");
+                }}
+              >
+                <X />
+              </Button>
+              <CardHeader className="text-center -mt-6">
+                <CardTitle className="text-lg sm:text-xl  font-bold mb-1 sm:mb-2">
+                  Complaint Detection
+                </CardTitle>
+                <CardDescription className="text-gray-600 text-sm sm:text-base">
+                  {response.summary}
+                </CardDescription>
               </CardHeader>
-              <p>Is Complaint: {response.isComplaint ? "Yes" : "No"}</p>
-              <p>Summary: {response.summary}</p>
-              <p>Category: {response.category}</p>
-              <p>Sub-category: {response.subcategory}</p>
+
+              <div className="mt-3 sm:mt-4">
+                <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
+                  <span className="font-semibold">Is Complaint: </span>
+                  <span className="font-normal">
+                    {response.isComplaint ? "Yes" : "No"}
+                  </span>
+                </p>
+                <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
+                  <span className="font-semibold">Summary:</span>
+                  <span className="font-normal">{response.summary}</span>
+                </p>
+                <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
+                  <span className="font-semibold">Category: </span>
+                  <span className="font-normal">
+                    {!response.category ? "None" : response.category}
+                  </span>
+                </p>
+                <p className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
+                  <span className="font-semibold">Sub-category: </span>
+                  <span className="font-normal">
+                    {!response.subcategory ? "None" : response.subcategory}
+                  </span>
+                </p>
+              </div>
             </Card>
           )}
         </div>
