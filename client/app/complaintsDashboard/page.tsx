@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -20,7 +20,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Tooltip,
@@ -40,11 +39,14 @@ interface ComplaintResponse {
   isComplaint: boolean;
 }
 
+const ITEMS_PER_PAGE = 6;
+
 export default function Dashboard() {
   const [complaints, setComplaints] = useState<ComplaintResponse[]>([]);
   const [search, setSearch] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [queryResults, setQueryResults] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetch("/api/getComplaintsFromDatabase", {
@@ -52,7 +54,7 @@ export default function Dashboard() {
     })
       .then((res) => res.json())
       .then((data: { complaints: ComplaintResponse[] }) => {
-        setComplaints(data.complaints.slice(0, 200));
+        setComplaints(data.complaints.slice(0, 200)); // Adjust the slice as needed
       });
   }, []);
 
@@ -65,8 +67,28 @@ export default function Dashboard() {
       .then((data) => {
         setOpenDialog(true);
         setQueryResults(data);
-        console.log(data);
       });
+  };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(complaints.length / ITEMS_PER_PAGE);
+
+  // Slice complaints for current page
+  const paginatedComplaints = complaints.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   return (
@@ -83,7 +105,7 @@ export default function Dashboard() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Button onClick={() => handleSearch()}>Search</Button>
+        <Button onClick={handleSearch}>Search</Button>
       </div>
 
       <Table className="w-11/12 mx-auto">
@@ -99,15 +121,15 @@ export default function Dashboard() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {complaints.length === 0 && (
+          {paginatedComplaints.length === 0 && (
             <TableRow>
               <TableCell colSpan={6}>
                 <Skeleton className="min-w-max h-10" />
               </TableCell>
             </TableRow>
           )}
-          {complaints.length > 0 &&
-            complaints.map((complaint) => (
+          {paginatedComplaints.length > 0 &&
+            paginatedComplaints.map((complaint) => (
               <TableRow key={complaint.id}>
                 <TableCell className="relative">
                   <TooltipProvider>
@@ -118,7 +140,7 @@ export default function Dashboard() {
                       <TooltipContent className="max-w-[600px] break-words">
                         {complaint.complaint}
                       </TooltipContent>
-                    </Tooltip>{" "}
+                    </Tooltip>
                   </TooltipProvider>
                 </TableCell>
                 <TableCell>
@@ -137,12 +159,35 @@ export default function Dashboard() {
                 </TableCell>
                 <TableCell>{complaint.isComplaint ? "✅" : "❌"}</TableCell>
               </TableRow>
-            ))}{" "}
+            ))}
         </TableBody>
       </Table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between mt-4">
+        <Button
+          variant="outline"
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft />
+          Previous
+        </Button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+        >
+          Next
+          <ChevronRight />
+        </Button>
+      </div>
+
       <Dialog open={openDialog}>
         <DialogContent>
-          {" "}
           <DialogHeader className="flex flex-col gap-2">
             <DialogTitle>Similar Complaints</DialogTitle>
             <DialogDescription>
