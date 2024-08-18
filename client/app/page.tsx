@@ -18,6 +18,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Complaint } from "./api/addComplaintToDatabase/route";
 import { X } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
 
 interface ComplaintResponse {
   isComplaint: boolean;
@@ -123,11 +124,19 @@ export default function Home() {
 
   return (
     <>
+   <div className="relative">
+      {/* Mode Toggle in the top-left corner */}
+      <div className="absolute top-4 left-4 md:top-6 md:left-6">
+        <ModeToggle />
+      </div>
+
+      {/* View Complaints button in the top-right corner */}
       <Link href="/complaintsDashboard">
-        <Button className="absolute right-4 top-4 md:right-6 md:top-6">
+        <Button className="absolute top-4 right-4 md:top-6 md:right-6">
           View all complaints
         </Button>
       </Link>
+    </div>
       <div className="flex min-h-screen w-full max-w-[900px] flex-col items-center justify-center mx-auto px-6 sm:px-10 lg:px-12 lg:max-w-screen-xl">
         <div className="text-center mb-10 flex flex-col gap-1">
           <h2 className="scroll-m-20 border-b pb-2 text-2xl sm:text-3xl font-semibold tracking-tight first:mt-0">
