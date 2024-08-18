@@ -35,6 +35,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ComplaintResponse {
   created_at: string;
@@ -228,34 +237,41 @@ export default function Dashboard() {
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="p-6 m-4 rounded-lg max-w-lg w-full">
-          <div className="flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
+          <ScrollArea className="flex flex-col gap-4 max-h-[80vh]">
             <DialogHeader className="flex flex-col gap-4">
-              <DialogTitle className="text-xl font-semibold text-gray-800">
+              <DialogTitle className="text-xl font-semibold">
                 Similar Complaints
               </DialogTitle>
               <DialogDescription>
                 <div className="flex flex-col gap-4 text-sm text-gray-600">
                   {queryResults.map((result, index) => (
-                    <div
-                      key={index}
-                      className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
-                    >
-                      <p className="text-gray-700">
-                        <span className="font-bold text-gray-900">Company:</span>{" "}
-                        {result.metadata.company}
-                      </p>
-                      <p className="text-gray-700">
-                        <span className="font-bold text-gray-900">Category:</span>{" "}
-                        {result.metadata.productCategory || "N/A"}
-                      </p>
-                      <p className="text-gray-700">
-                        <span className="font-bold text-gray-900">Subcategory:</span>{" "}
-                        {result.metadata.subProductCategory || "N/A"}
-                      </p>
-                      <p className="text-gray-700">
-                        <span className="font-bold text-gray-900">Complaint:</span>{" "}
-                        {result.pageContent}
-                      </p>
+                    <div key={index}>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg font-bold">
+                            {result.metadata.company}
+                          </CardTitle>
+                          <CardDescription>
+                            <p>
+                              <span className="font-bold">
+                                Product category:{" "}
+                              </span>
+                              {result.metadata.productCategory}
+                            </p>
+                            <p>
+                              <span className="font-bold">
+                                Product subcategory:{" "}
+                              </span>
+                              {result.metadata.subProductCategory}
+                            </p>
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription>
+                            {result.pageContent}
+                          </CardDescription>
+                        </CardContent>
+                      </Card>
                     </div>
                   ))}
                 </div>
@@ -264,11 +280,11 @@ export default function Dashboard() {
             <Button
               variant="outline"
               onClick={() => setOpenDialog(false)}
-              className="self-end mt-4"
+              className="self-end w-full mt-4"
             >
               Close
             </Button>
-          </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
