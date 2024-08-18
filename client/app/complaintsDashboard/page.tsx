@@ -69,7 +69,7 @@ export default function Dashboard() {
   const handleSearch = () => {
     fetch("/api/queryVectorDatabase", {
       method: "POST",
-      body: JSON.stringify({ query: search, topK: 3 }),
+      body: JSON.stringify({ query: search, topK: 4 }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -78,10 +78,8 @@ export default function Dashboard() {
       });
   };
 
-  // Calculate total pages
   const totalPages = Math.ceil(complaints.length / ITEMS_PER_PAGE);
 
-  // Slice complaints for current page
   const paginatedComplaints = complaints.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -206,7 +204,6 @@ export default function Dashboard() {
         </TableBody>
       </Table>
 
-      {/* Pagination Controls */}
       <div className="flex justify-between mt-4">
         <Button
           variant="outline"
@@ -229,36 +226,49 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      <Dialog open={openDialog}>
-        <DialogContent>
-          <DialogHeader className="flex flex-col gap-2">
-            <DialogTitle>Similar Complaints</DialogTitle>
-            <DialogDescription>
-              <div className="flex flex-col gap-4">
-                {queryResults.map((result, index) => (
-                  <div key={index}>
-                    <p>
-                      <span className="font-bold">Company:</span>{" "}
-                      {result.metadata.company}
-                    </p>
-                    <p>
-                      <span className="font-bold">Product Category:</span>{" "}
-                      {result.metadata.productCategory}
-                    </p>
-                    <p>
-                      <span className="font-bold">Subproduct Category:</span>{" "}
-                      {result.metadata.subProductCategory}
-                    </p>
-                    <p>
-                      <span className="font-bold">Complaint: </span>
-                      {result.pageContent}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </DialogDescription>
-          </DialogHeader>
-          <Button onClick={() => setOpenDialog(false)}>Close</Button>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="p-6 m-4 rounded-lg max-w-lg w-full">
+          <div className="flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
+            <DialogHeader className="flex flex-col gap-4">
+              <DialogTitle className="text-xl font-semibold text-gray-800">
+                Similar Complaints
+              </DialogTitle>
+              <DialogDescription>
+                <div className="flex flex-col gap-4 text-sm text-gray-600">
+                  {queryResults.map((result, index) => (
+                    <div
+                      key={index}
+                      className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
+                    >
+                      <p className="text-gray-700">
+                        <span className="font-bold text-gray-900">Company:</span>{" "}
+                        {result.metadata.company}
+                      </p>
+                      <p className="text-gray-700">
+                        <span className="font-bold text-gray-900">Category:</span>{" "}
+                        {result.metadata.productCategory || "N/A"}
+                      </p>
+                      <p className="text-gray-700">
+                        <span className="font-bold text-gray-900">Subcategory:</span>{" "}
+                        {result.metadata.subProductCategory || "N/A"}
+                      </p>
+                      <p className="text-gray-700">
+                        <span className="font-bold text-gray-900">Complaint:</span>{" "}
+                        {result.pageContent}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <Button
+              variant="outline"
+              onClick={() => setOpenDialog(false)}
+              className="self-end mt-4"
+            >
+              Close
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
