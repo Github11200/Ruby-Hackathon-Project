@@ -1,6 +1,6 @@
 
 ---
-# 🚀 Headstarter Fellowship Hackathon - Ruby Track
+# 🚀 Headstarter Fellowship Hackathon - Ruby Track (hackathon finalist)
 
 ## Project: AI-Powered Complaint Categorization System for Spend Ruby 💼
 
@@ -45,8 +45,6 @@ Overall architecture diagram:
 
 ### 📞 Contact
 For any inquiries or further information, please feel free to contact us.
-
-We are excited to work on this project and contribute to Spend Ruby's mission of providing a modern financial platform for businesses. 🌟
 
 ---
 
